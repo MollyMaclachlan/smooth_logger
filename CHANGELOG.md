@@ -8,6 +8,10 @@
 
 - Added missing docstring for `Logger.clean()`. (@MurdoMaclachlan)
 
+**Documentation**
+
+- Added missing docstring for `Logger.clean()`.
+
 ### 0.1.0
 
 **New**
