@@ -1,9 +1,8 @@
 from datetime import datetime
-from os import environ, makedirs
-from os.path import expanduser, isdir
+from os import makedirs
+from os.path import isdir
 from plyer import notification
 from smooth_progress import ProgressBar
-from sys import platform
 from time import time
 from typing import Dict, List, Union
 
@@ -19,13 +18,14 @@ class Logger:
     2: maximum, print to console and save to log file
     """
     def __init__(
-        self: object, program_name: str, debug: int = 0, error: int = 2, fatal: int = 2,
-        info: int = 1, warning: int = 2
+        self: object, program_name: str, config_path: str, debug: int = 0,
+        error: int = 2, fatal: int = 2, info: int = 1, warning: int = 2
     ) -> None:
         self.bar: Union[ProgressBar, None] = None
         self.__is_empty: bool = True
         self.__log: List[LogEntry] = []
         self.__notifier: object = notification
+        self.__output_path: str = f"{config_path}/logs"
         self.__program_name: str = program_name
         self.__scopes: Dict[str, int] = {
             "DEBUG":   debug,   # information for debugging the program
@@ -35,38 +35,12 @@ class Logger:
             "WARNING": warning  # things that could cause errors later on
         }
         self.__write_logs = False
-        self.__path: str = self.__define_output_path(expanduser("~"), platform)
+        self.__create_log_folder()
 
-    def __define_output_path(self: object, home: str, os: str) -> str:
-        """Detects OS and defines the appropriate save paths for the config and data.
-        Exits on detecting an unspported OS. Supported OSes are: Linux, MacOS, Windows.
-
-        :arg home: string; the user's home folder
-        :arg os: string; the user's operating system
-
-        :return: a single string dict containing the newly-defined output path
-        """
-        os = "".join(list(os)[:3])
-
-        # Route for a supported operating system
-        if os in ["dar", "lin", "win"]:
-
-            path = (
-                environ["APPDATA"] + f"\\{self.__program_name}\logs"
-                if os == "win" else
-                f"{home}/.config/{self.__program_name}/logs"
-            )
-
-            # Create any missing directories
-            if not isdir(path):
-                self.new(f"Making path: {path}", "INFO")
-                makedirs(path, exist_ok=True)
-            return path
-
-        # Exit if the operating system is unsupported
-        else:
-            print(f"FATAL: Unsupported operating system: {os}, exiting.")
-            exit()
+    def __create_log_folder(self: object) -> None:
+        if not isdir(self.__output_path):
+            print(f"Making path: {self.__output_path}")
+            makedirs(self.__output_path, exist_ok=True)
 
     def add_scope(self: object, name: str, value: int) -> bool:
         """Adds a new logging scope for use with log entries. Users should be careful
@@ -229,7 +203,7 @@ class Logger:
         """
         if self.__write_logs:
             with open(
-                f"{self.__path}/log-{self.get_time(method='date')}.txt", "at+"
+                f"{self.__output_path}/log-{self.get_time(method='date')}.txt", "at+"
             ) as log_file:
                 for line in self.__log:
                     if line.output:
