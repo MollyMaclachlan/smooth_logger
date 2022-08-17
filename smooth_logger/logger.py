@@ -69,6 +69,8 @@ class Logger:
             exit()
 
     def clean(self: object) -> None:
+        """Empties log array, amending '__is_empty' to True and '__write_logs' to False.
+        """
         del self.__log[:]
         self.__is_empty = True
         self.__write_logs = False
