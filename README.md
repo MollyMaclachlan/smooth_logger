@@ -17,13 +17,16 @@ Usage of smooth-logger is, as it should be, quite simple.
 The `Logger` model provides a number of methods for your use:
 
 - `Logger.clean()` erases all log entries currently in memory.
-- `Logger.define_output_path()` is primarily intended as an internal method; it detects the user's operating system and home folder and, using the provided program name and creates a log folder in the appropriate location (`~/.config/{program_name}` on Linux and macOS, `AppData\Roaming\{program_name}` on Windows).
 - `Logger.get()` allows you to retrieve either the most recent log entry or all log entries, optionally filtered by scope.
 - `Logger.get_time()` returns the full date & time, or optionally just the date, in ISO-8601 formatting.
 - `Logger.init_bar()` initialises the `ProgressBar` model imported from the `smooth_progress` dependency.
 - `Logger.notify()` sends a desktop notification using the `plyer` dependency.
 - `Logger.new()` creates and, depending on scope, prints a new log entry.
 - `Logger.output()` saves all log entries of appropriate scope to the log file and cleans the log array for the next group of log entries. A new log file is created for each new day. This method only attempts to create or update the log file if there are entries of an appropriate scope to be written to it; if there are none, it just executes `Logger.clean()`.
+
+There is also an internal method, designed to not be used by the end-user and thus hidden:
+
+- `Logger.__define_output_path()` is primarily intended as an internal method; it detects the user's operating system and home folder and, using the provided program name and creates a log folder in the appropriate location (`~/.config/{program_name}` on Linux and macOS, `AppData\Roaming\{program_name}` on Windows).
 
 When initialising the Logger, you can optionally provide values to associate with each scope:
 
