@@ -35,7 +35,7 @@ class Logger:
             "WARNING": warning  # things that could cause errors later on
         }
         self.__write_logs = False
-        self.__path: str = self.define_output_path(expanduser("~"), platform)
+        self.__path: str = self.__define_output_path(expanduser("~"), platform)
 
     def __define_output_path(self: object, home: str, os: str) -> str:
         """Detects OS and defines the appropriate save paths for the config and data.
@@ -78,7 +78,7 @@ class Logger:
         underscores. Custom scopes are instance specific ad not hard saved.
 
         :arg name: string; the name of the new scope.
-        :arg default_value: int; from 0 to 2, the default value of the new scope.
+        :arg value: int; from 0 to 2, the default value of the new scope.
 
         :return: A boolean indicating the success or failure of adding the new scope.
         """
@@ -163,16 +163,9 @@ class Logger:
         self.bar = ProgressBar(limit=limit)
         self.bar.open()
 
-    def notify(self: object, message: str) -> None:
-        """Display a desktop notification with a given message.
-
-        :arg message: string; the message to display in the notification.
-        """
-        self.__notifier.notify(title=self.__program_name, message=message)
-
     def new(
             self: object,
-            message: str, scope: str, do_not_print: bool = False
+            message: str, scope: str, do_not_print: bool = False, notify: bool = False
         ) -> bool:
         """Initiates a new log entry and prints it to the console. Optionally, if
         do_not_print is passed as True, it will only save the log and will not print
@@ -180,7 +173,10 @@ class Logger:
 
         :arg message: string; the messaage to log.
         :arg scope: string; the scope of the message (e.g. debug, error, info).
-        :arg do_not_print: optional, bool; False by default.
+        :arg do_not_print: optional, bool; False by default. Passing as True causes the
+          message not to be printed to the console, regardless of scope.
+        :arg notify: optinoal, bool; False by default. Passing as True will display the
+          message as a desktop notification.
 
         :return: boolean success status.
         """
@@ -203,9 +199,10 @@ class Logger:
             elif self.__scopes[scope]:
                 print(entry.rendered if not do_not_print else None)
 
-            # Re-print bar, if required
             if isBar:
                 print(self.bar.state, end="\r", flush=True)
+            if notify:
+                self.notify(message)
 
             # Amend boolean states
             if not self.__write_logs:
@@ -216,6 +213,13 @@ class Logger:
         else:
             self.new("Unknown scope passed to Logger.new()", "WARNING")
         return False
+
+    def notify(self: object, message: str) -> None:
+        """Display a desktop notification with a given message.
+
+        :arg message: string; the message to display in the notification.
+        """
+        self.__notifier.notify(title=self.__program_name, message=message)
 
     def output(self: object) -> None:
         """Write all log entries with scopes set to save to a log file in a data folder
