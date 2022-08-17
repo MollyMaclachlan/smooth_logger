@@ -27,7 +27,6 @@ class Logger:
         self.__log: List[LogEntry] = []
         self.__notifier: object = notification
         self.__program_name: str = program_name
-        self.__path: str = self.define_output_path(expanduser("~"), platform)
         self.__scopes: Dict[str, int] = {
             "DEBUG":   debug,   # information for debugging the program
             "ERROR":   error,   # errors the program can recover from
@@ -36,13 +35,9 @@ class Logger:
             "WARNING": warning  # things that could cause errors later on
         }
         self.__write_logs = False
+        self.__path: str = self.define_output_path(expanduser("~"), platform)
 
-    def clean(self: object) -> None:
-        del self.__log[:]
-        self.__is_empty = True
-        self.__write_logs = False
-
-    def define_output_path(self: object, home: str, os: str) -> str:
+    def __define_output_path(self: object, home: str, os: str) -> str:
         """Detects OS and defines the appropriate save paths for the config and data.
         Exits on detecting an unspported OS. Supported OSes are: Linux, MacOS, Windows.
 
@@ -64,7 +59,7 @@ class Logger:
 
             # Create any missing directories
             if not isdir(path):
-                print(f"Making path: {path}")
+                self.new(f"Making path: {path}", "INFO")
                 makedirs(path, exist_ok=True)
             return path
 
@@ -72,6 +67,11 @@ class Logger:
         else:
             print(f"FATAL: Unsupported operating system: {os}, exiting.")
             exit()
+
+    def clean(self: object) -> None:
+        del self.__log[:]
+        self.__is_empty = True
+        self.__write_logs = False
 
     def get(
             self: object, mode: str = "all", scope: str = None
