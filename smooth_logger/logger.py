@@ -68,6 +68,31 @@ class Logger:
             print(f"FATAL: Unsupported operating system: {os}, exiting.")
             exit()
 
+    def add_scope(self: object, name: str, value: int) -> bool:
+        """Adds a new logging scope for use with log entries. Users should be careful
+        when doing this; custom scopes would be best added immediately following
+        initialisation. If a 'Logger.new()' call is run before the scope it uses is
+        added, it will generate a warning.
+
+        The recommended format for scope names is all uppercase, with no spaces or
+        underscores. Custom scopes are instance specific ad not hard saved.
+
+        :arg name: string; the name of the new scope.
+        :arg default_value: int; from 0 to 2, the default value of the new scope.
+
+        :return: A boolean indicating the success or failure of adding the new scope.
+        """
+        if name in self.__scopes.keys():
+            self.new(
+                f"Attempt was made to add new scope with name {name}, but scope with "
+                + "this name already exists.",
+                "WARNING"
+            )
+            return False
+        else:
+            self.__scopes[name] = value
+        return True
+
     def clean(self: object) -> None:
         """Empties log array, amending '__is_empty' to True and '__write_logs' to False.
         """
