@@ -49,7 +49,7 @@ class Logger:
         added, it will generate a warning.
 
         The recommended format for scope names is all uppercase, with no spaces or
-        underscores. Custom scopes are instance specific ad not hard saved.
+        underscores. Custom scopes are instance specific and not hard saved.
 
         :arg name: string; the name of the new scope.
         :arg value: int; from 0 to 2, the default value of the new scope.
@@ -62,10 +62,10 @@ class Logger:
                 + "this name already exists.",
                 "WARNING"
             )
-            return False
         else:
             self.__scopes[name] = value
-        return True
+            return True
+        return False
 
     def clean(self: object) -> None:
         """Empties log array, amending '__is_empty' to True and '__write_logs' to False.
@@ -73,6 +73,26 @@ class Logger:
         del self.__log[:]
         self.__is_empty = True
         self.__write_logs = False
+
+    def edit_scope(self: object, name: str, value: int) -> bool:
+        """Edits an existing logging scope's value. Edited values are instance specific
+        and not hard saved.
+
+        :arg name: string; the name of the scope to edit.
+        :arg value: int; from 0 to 2, the new value of the scope.
+
+        :return: A boolean indicating the success or failure of editing the scope.
+        """
+        if name in self.__scopes.keys():
+            self.__scopes[name] = value
+            return True
+        else:
+            self.new(
+                f"Attempt was made to edit a scope with name {name}, but no scope with "
+                + "this name exists.",
+                "WARNING"
+            )
+        return False
 
     def get(
             self: object, mode: str = "all", scope: str = None

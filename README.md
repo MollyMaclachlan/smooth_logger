@@ -40,10 +40,10 @@ The scopes available, along with their default values and suggested use cases, a
 
 Here is a simple example showing the initialisation of the logger:
 
-```
+```py
 import smooth_logger
 
-Log = smooth_logger.Logger("Program")
+Log = smooth_logger.Logger("Example", "~/.config/example")
 Log.new("This is a log message!", "INFO")
 ```
 
@@ -74,3 +74,7 @@ A roadmap of planned future improvements and features:
   
 
 - Add an optional argument `notify: bool` to `Logger.new()` to allow log entries to be created and notified in one statement, rather than the two currently required.
+
+- Rework `Logger.get()` to allow passing of a specific number of log values to be fetched. If these values exceed the number in the log, all matching log values should be returned, and a warning should be issued (but not returned).
+
+- Possibly replace some internal warnings with Exceptions so they can be more easily-handled by end-user programs.
