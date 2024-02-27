@@ -7,7 +7,7 @@ def readme():
 
 setup(
     name="smooth_logger",
-    version="0.1.0.7",
+    version="0.2.0",
     author="Murdo Maclachlan",
     author_email="murdomaclachlan@duck.com",
     description=(
@@ -16,7 +16,7 @@ setup(
     ),
     long_description=readme(),
     long_description_content_type="text/markdown",
-    url="https://codeberg.org/MurdoMaclachlan/smooth_logger",
+    url="https://github.com/MurdoMaclachlan/smooth_logger",
     packages=find_packages(),
     install_requires=[
         "plyer",
