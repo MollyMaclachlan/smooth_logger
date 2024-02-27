@@ -268,7 +268,7 @@ class Logger:
                 message += " " * (len(self.bar.state) - len(message))
             
             entry: LogEntry = self.__create_log_entry(message, output, scope)
-            self.__display_log_entry(entry, scope, notify, print_to_console, is_bar)
+            self.__display_log_entry(entry, scope, notify, is_bar, print_to_console)
 
             self.__write_logs = self.__write_logs or output
             self.__is_empty = False
