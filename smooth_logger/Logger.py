@@ -92,7 +92,7 @@ class Logger:
             path: str = (
                 environ["APPDATA"] + f"\\{self.__program_name}\logs"
                 if os == "win" else
-                f"{expanduser("~")}/.config/{self.__program_name}/logs"
+                f"{expanduser('~')}/.config/{self.__program_name}/logs"
             )
             if not isdir(path):
                 print(f"INFO: Making path: {path}")
