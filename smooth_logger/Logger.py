@@ -40,10 +40,49 @@ class Logger:
         self.__write_logs = False
         self.__create_log_folder()
 
+    def __create_log_entry(self, message: str, output: bool, scope: str) -> LogEntry:
+        """
+        Creates a new log entry from given settings and appends it to the log.
+
+        :param message: the log message
+        :param output: whether the message should be output to the log file
+        :param scope: the scope of the message
+
+        :returns: the created log entry
+        """
+        entry: LogEntry = LogEntry(message, output, scope, self.__get_time())
+        self.__log.append(entry)
+        return entry
+
     def __create_log_folder(self) -> None:
+        """
+        Creates the folder that will contain the log files.
+        """
         if not isdir(self.__output_path):
             print(f"Making path: {self.__output_path}")
             makedirs(self.__output_path, exist_ok=True)
+    
+    def __display_log_entry(self,
+                            entry: LogEntry,
+                            scope: str,
+                            notify: bool,
+                            do_not_print: bool,
+                            is_bar: bool) -> None:
+        """
+        Displays a given log entry as appropriate using further given settings.
+
+        :param entry: the entry to display
+        :param scope: the scope of the entry
+        :param notify: whether to show a desktop notification for the entry
+        :param do_not_print: if the entry should not be printed to the console
+        :param is_bar: whether the progress bar is active
+        """
+        if scope == "NOSCOPE" or (self.__scopes[scope] > 0 and not do_not_print):
+            print(entry.rendered)
+        if is_bar:
+            print(self.bar.state, end="\r", flush=True)
+        if notify:
+            self.notify(entry.message)
 
     def __get_time(self, method: str = "time") -> str:
         """Gets the current time and parses it to a human-readable format.
@@ -179,28 +218,17 @@ class Logger:
         :return: boolean success status.
         """
         if scope in self.__scopes or scope == "NOSCOPE":
-            # TODO: separate some of this into sub-methods
+            output: bool = (self.__scopes[scope] == 2) if scope != "NOSCOPE" else False
+            is_bar: bool = (self.bar is not None) and self.bar.opened
 
-            # Setup variables
-            output = (self.__scopes[scope] == 2) if scope != "NOSCOPE" else False
-            isBar: bool = (self.bar is not None) and self.bar.opened
-
-            # Create and save the log entry
-            if isBar and len(message) < len(self.bar.state):
+            # if the progress bar is enabled, append any necessary empty characters to the message
+            # to completely overwrite it upon output
+            if is_bar and len(message) < len(self.bar.state):
                 message += " " * (len(self.bar.state) - len(message))
-            entry = LogEntry(message, output, scope, self.__get_time())
-            self.__log.append(entry)
+            
+            entry: LogEntry = self.__create_log_entry(is_bar, message, output, scope)
+            self.__display_log_entry(entry, scope, notify, do_not_print, is_bar)
 
-            # Print the message, if required
-            if scope == "NOSCOPE" or (self.__scopes[scope] > 0 and not do_not_print):
-                print(entry.rendered)
-
-            if isBar:
-                print(self.bar.state, end="\r", flush=True)
-            if notify:
-                self.notify(message)
-
-            # Amend boolean states
             self.__write_logs = self.__write_logs or output
             self.__is_empty = False
 
