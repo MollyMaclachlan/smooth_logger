@@ -11,19 +11,23 @@ from typing import Dict, List, Union
 
 
 class Logger:
-    """Class for controlling the entirety of logging. The logging works on a scope-based
-    system where (almost) every message has a defined scope, and the scopes are each
-    associated with a specific value between 0 and 2 inclusive. The meanings of the
-    values are as follows:
+    """
+    Class for controlling the entirety of logging. The logging works on a scope-based system where
+    (almost) every message has a defined scope, and the scopes are each associated with a specific
+    value between 0 and 2 inclusive. The meanings of the values are as follows:
 
     0: disabled, do not print to console or save to log file
     1: enabled, print to console but do not save to log file
     2: maximum, print to console and save to log file
     """
-    def __init__(
-        self, program_name: str, config_path: str, debug: int = 0, error: int = 2,
-        fatal: int = 2, info: int = 1, warning: int = 2
-    ) -> None:
+    def __init__(self,
+                 program_name: str,
+                 config_path: str,
+                 debug: int = 0,
+                 error: int = 2,
+                 fatal: int = 2,
+                 info: int = 1,
+                 warning: int = 2) -> None:
         self.bar: ProgressBar = ProgressBar()
         self.__is_empty: bool = True
         self.__log: List[LogEntry] = []
@@ -85,13 +89,13 @@ class Logger:
             self.notify(entry.message)
 
     def __get_time(self, method: str = "time") -> str:
-        """Gets the current time and parses it to a human-readable format.
+        """
+        Gets the current time and parses it to a human-readable format; either
+        'YYYY-MM-DD HH:MM:SS' or 'YYYY-MM-DD'.
 
-        :arg method: string; the method to calculate the timestamp; either 'time' or
-          'date'.
+        :param method: the format of the timestamp; either 'time' or 'date'.
 
-        :return: a single date string formatted either 'YYYY-MM-DD HH:MM:SS' or
-          'YYYY-MM-DD'
+        :returns: a single date string
         """
         if method in ["time", "date"]:
             return datetime.fromtimestamp(time()).strftime(
@@ -102,23 +106,23 @@ class Logger:
             return ""
 
     def add_scope(self, name: str, value: int) -> bool:
-        """Adds a new logging scope for use with log entries. Users should be careful
-        when doing this; custom scopes would be best added immediately following
-        initialisation. If a 'Logger.new()' call is run before the scope it uses is
-        added, it will generate a warning.
+        """
+        Adds a new logging scope for use with log entries. Users should be careful when doing this;
+        custom scopes would be best added immediately following initialisation. If a 'Logger.new()'
+        call is made before the scope it uses is added, it will generate a warning.
 
-        The recommended format for scope names is all uppercase, with no spaces or
-        underscores. Custom scopes are instance specific and not hard saved.
+        The recommended format for scope names is all uppercase, with no spaces or underscores.
+        Custom scopes are instance specific and not hard saved.
 
-        :arg name: string; the name of the new scope.
-        :arg value: int; from 0 to 2, the default value of the new scope.
+        :param name: the name of the new scope
+        :param value: the default value of the new scope (0-2)
 
-        :return: A boolean indicating the success or failure of adding the new scope.
+        :return: a boolean sucess status
         """
         if name in self.__scopes.keys():
             self.new(
-                f"Attempt was made to add new scope with name {name}, but scope with "
-                + "this name already exists.",
+                f"Attempt was made to add new scope with name {name}, but scope with this name "
+                + "already exists.",
                 "WARNING"
             )
         else:
@@ -127,20 +131,21 @@ class Logger:
         return False
 
     def clean(self) -> None:
-        """Empties log array, amending '__is_empty' to True and '__write_logs' to False.
+        """
+        Empties log array. Any log entries not saved to the output file will be lost.
         """
         del self.__log[:]
         self.__is_empty = True
         self.__write_logs = False
 
     def edit_scope(self, name: str, value: int) -> bool:
-        """Edits an existing logging scope's value. Edited values are instance specific
-        and not hard saved.
+        """
+        Edits an existing scope's value. Edited values are instance specific and not hard saved.
 
-        :arg name: string; the name of the scope to edit.
-        :arg value: int; from 0 to 2, the new value of the scope.
+        :param name: the name of the scope to edit
+        :param value: the new value of the scope (0-2)
 
-        :return: A boolean indicating the success or failure of editing the scope.
+        :returns: a boolean success status
         """
         if name in self.__scopes.keys():
             self.__scopes[name] = value
@@ -153,18 +158,15 @@ class Logger:
             )
         return False
 
-    def get(self, mode: str = "all", scope: str = None) -> Union[
-        List[LogEntry], LogEntry, str
-    ]:
-        """Returns item(s) in the log. What entries are returned can be controlled by
-        passing optional arguments.
+    def get(self, mode: str = "all", scope: str = None) -> Union[List[LogEntry], LogEntry, str]:
+        """
+        Returns item(s) in the log. The entries returned can be controlled by passing optional
+        arguments.
 
-        :arg mode: optional, string; options are 'all' and 'recent'.
-        :arg scope: optional, string; if passed, only entries with matching scope will
-          be returned.
+        :param mode: optional; 'all' for all log entries or 'recent' for only the most recent one
+        :param scope: optional; if passed, only entries matching its value will be returned
 
-        :return: a single log entry (string), list of log entries (string array), or an
-          empty string on a failure.
+        :returns: a single log entry, list of log entries, or an empty string indicating failure
         """
         if self.__is_empty:
             pass
@@ -193,9 +195,10 @@ class Logger:
         return ""
 
     def init_bar(self, limit: int) -> None:
-        """Initiate and open the progress bar.
+        """
+        Initiate and open the progress bar.
 
-        :arg limit: int; the number of increments it should take to fill the bar.
+        :param limit: the number of increments it should take to fill the bar
         """
         self.bar = ProgressBar(limit=limit)
         self.bar.open()
@@ -204,18 +207,19 @@ class Logger:
             self, message: str, scope: str, do_not_print: bool = False,
             notify: bool = False
         ) -> bool:
-        """Initiates a new log entry and prints it to the console. Optionally, if
-        do_not_print is passed as True, it will only save the log and will not print
-        anything (unless the scope is 'NOSCOPE'; these messages are always printed).
+        """
+        Initiates a new log entry and prints it to the console. Optionally, if do_not_print is
+        passed as True, it will only save the log and will not print anything (unless the scope is
+        'NOSCOPE'; these messages are always printed).
 
-        :arg message: string; the message to log.
-        :arg scope: string; the scope of the message (e.g. debug, error, info).
-        :arg do_not_print: optional, bool; False by default. Passing as True causes the
-          message not to be printed to the console, regardless of scope.
-        :arg notify: optional, bool; False by default. Passing as True will display the
-          message as a desktop notification.
+        :param message: the log message
+        :param scope: the scope of the message
+        :param do_not_print: optional; if true True, the message will not be printed to the
+                                       console, regardless of scope
+        :param notify: optional; if true True, the message will be displayed as a desktop
+                                 notification
 
-        :return: boolean success status.
+        :returns: a boolean success status
         """
         if scope in self.__scopes or scope == "NOSCOPE":
             output: bool = (self.__scopes[scope] == 2) if scope != "NOSCOPE" else False
@@ -238,17 +242,19 @@ class Logger:
         return False
 
     def notify(self, message: str) -> None:
-        """Display a desktop notification with a given message.
+        """
+        Displays a desktop notification with a given message.
 
-        :arg message: string; the message to display in the notification.
+        :param message: the message to display
         """
         self.__notifier.notify(title=self.__program_name, message=message)
 
     def output(self) -> None:
-        """Write all log entries with scopes set to save to a log file in a data folder
-        in the working directory, creating the folder and file if they do not exist.
-        The log files are marked with the date, so each new day, a new file will be
-        created.
+        """
+        Writes all log entries with appropriate scopes to the log file. If the output path for the
+        log file does not exist, it is created.
+
+        Log files are marked with the date, so each new day, a new file will be created.
         """
         if self.__write_logs:
             with open(

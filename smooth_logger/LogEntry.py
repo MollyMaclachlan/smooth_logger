@@ -1,11 +1,8 @@
 class LogEntry:
-    """Represents a single entry within the log, storing its timestamp, scope and
-    message. This makes it easier to select certain log entries using the
-    Logger.get() method.
     """
-    def __init__(
-        self: object, message: str, output: bool, scope: str, timestamp: str
-    ) -> None:
+    Represents a single log entry, storing its timestamp, scope and message.
+    """
+    def __init__(self: object, message: str, output: bool, scope: str, timestamp: str) -> None:
         self.message = message
         self.output = output
         self.scope = scope
