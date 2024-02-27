@@ -1,10 +1,10 @@
 from datetime import datetime
-from os import makedirs
-from os.path import isdir
+from os import environ, makedirs
+from os.path import expanduser, isdir
 from plyer import notification
 from smooth_progress import ProgressBar
 from time import time
-from LogEntry import LogEntry
+from .LogEntry import LogEntry
 
 from plyer.facades import Notification
 from typing import Dict, List, Union
@@ -22,7 +22,7 @@ class Logger:
     """
     def __init__(self,
                  program_name: str,
-                 config_path: str,
+                 config_path: str = None,
                  debug: int = 0,
                  error: int = 2,
                  fatal: int = 2,
@@ -32,7 +32,6 @@ class Logger:
         self.__is_empty: bool = True
         self.__log: List[LogEntry] = []
         self.__notifier: Notification = notification
-        self.__output_path: str = f"{config_path}/logs"
         self.__program_name: str = program_name
         self.__scopes: Dict[str, int] = {
             "DEBUG":   debug,   # information for debugging the program
@@ -42,6 +41,11 @@ class Logger:
             "WARNING": warning  # things that could cause errors later on
         }
         self.__write_logs = False
+        self.__output_path: str = (
+            self.__define_output_path()
+            if config_path is None else 
+            f"{config_path}/logs"
+        )
         self.__create_log_folder()
 
     def __create_log_entry(self, message: str, output: bool, scope: str) -> LogEntry:
@@ -65,6 +69,41 @@ class Logger:
         if not isdir(self.__output_path):
             print(f"Making path: {self.__output_path}")
             makedirs(self.__output_path, exist_ok=True)
+
+    def __define_output_path(self) -> str:
+        """
+        Defines the appropriate output path for the log file, automatically detecting the user's
+        config folder and using the given program name. If the detected operating system is not
+        supported, exits.
+
+        Supported operating systems are: Linux, MacOS, Windows. Users of an unsupported operating
+        system will have to pass a pre-defined config path of the following format:
+
+        {user_config_path}/{name_of_program_config_folder}
+
+        On Linux, with a program name of "test", this would format to:
+
+        /home/{user}/.config/test
+        """
+        from sys import platform
+
+        os: str = "".join(list(platform)[:3])
+        if os in ["dar", "lin", "win"]:
+            path: str = (
+                environ["APPDATA"] + f"\\{self.__program_name}\logs"
+                if os == "win" else
+                f"{expanduser("~")}/.config/{self.__program_name}/logs"
+            )
+            if not isdir(path):
+                print(f"INFO: Making path: {path}")
+                makedirs(path, exist_ok=True)
+            return path
+        else:
+            print(
+                f"FATAL: Could not automatically create output folder for operating system: {os}."
+                + "You will need to manually pass a pre-defined config_path."
+            )
+            exit()
     
     def __display_log_entry(self,
                             entry: LogEntry,
