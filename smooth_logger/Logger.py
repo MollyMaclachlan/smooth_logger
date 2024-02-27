@@ -179,14 +179,14 @@ class Logger:
             if mode == "all":
                 data: list[LogEntry] = []
                 for i in self.__log:
-                    if i.scope == scope:
+                    if scope is None or i.scope == scope:
                         data.append(i)
                 if data:
                     return data
             # iterate through the log in reverse to find the most recent entry matching the query
             elif mode == "recent":
                 for i in range(len(self.__log)-1, 0):
-                    if self.__log[i].scope == scope:
+                    if scope is None or self.__log[i].scope == scope:
                         return self.__log[i]
             else:
                 self.new("Unknown mode passed to Logger.get().", "WARNING")
