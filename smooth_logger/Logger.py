@@ -258,9 +258,8 @@ class Logger:
         Log files are marked with the date, so each new day, a new file will be created.
         """
         if self.__write_logs:
-            with open(
-                f"{self.__output_path}/log-{self.__get_time(method='date')}.txt", "at+"
-            ) as log_file:
+            with open(f"{self.__output_path}/log-{self.__get_time(method='date')}.txt",
+                      "at+") as log_file:
                 for line in self.__log:
                     if line.output:
                         log_file.write(line.rendered + "\n")
