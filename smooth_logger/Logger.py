@@ -158,41 +158,38 @@ class Logger:
             )
         return False
 
-    def get(self, mode: str = "all", scope: str = None) -> Union[List[LogEntry], LogEntry, str]:
+    def get(self, mode: str = "all", scope: str = None) -> Union[List[LogEntry], LogEntry]:
         """
         Returns item(s) in the log. The entries returned can be controlled by passing optional
         arguments.
 
+        If no entries match the query, nothing will be returned.
+
         :param mode: optional; 'all' for all log entries or 'recent' for only the most recent one
         :param scope: optional; if passed, only entries matching its value will be returned
 
-        :returns: a single log entry, list of log entries, or an empty string indicating failure
+        :returns: a single log entry or list of log entries, or nothing
         """
         if self.__is_empty:
             pass
         elif scope is None:
-            # Tuple indexing provides a succinct way to determine what to return
-            return (self.__log, self.__log[len(self.__log)-1])[mode == "recent"]
+            return (self.__log, self.__log[-1])[mode == "recent"]
         else:
-            # Return all log entries with a matching scope
+            # return all log entries matching the query
             if mode == "all":
-                data = []
+                data: list[LogEntry] = []
                 for i in self.__log:
                     if i.scope == scope:
                         data.append(i)
                 if data:
                     return data
-            # Return the most recent log entry with a matching scope; for this purpose,
-            # we reverse the list then iterate through it.
+            # iterate through the log in reverse to find the most recent entry matching the query
             elif mode == "recent":
-
                 for i in range(len(self.__log)-1, 0):
                     if self.__log[i].scope == scope:
                         return self.__log[i]
             else:
                 self.new("Unknown mode passed to Logger.get().", "WARNING")
-        # Return an empty string to indicate failure if no entries were found
-        return ""
 
     def init_bar(self, limit: int) -> None:
         """
