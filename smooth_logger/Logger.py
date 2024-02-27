@@ -70,18 +70,18 @@ class Logger:
                             entry: LogEntry,
                             scope: str,
                             notify: bool,
-                            do_not_print: bool,
-                            is_bar: bool) -> None:
+                            is_bar: bool,
+                            print_to_console: bool = True) -> None:
         """
         Displays a given log entry as appropriate using further given settings.
 
         :param entry: the entry to display
         :param scope: the scope of the entry
         :param notify: whether to show a desktop notification for the entry
-        :param do_not_print: if the entry should not be printed to the console
         :param is_bar: whether the progress bar is active
+        :param console: whether the message should be printed to the console
         """
-        if scope == "NOSCOPE" or (self.__scopes[scope] > 0 and not do_not_print):
+        if scope == "NOSCOPE" or (self.__scopes[scope] > 0 and print_to_console):
             print(entry.rendered)
         if is_bar:
             print(self.bar.state, end="\r", flush=True)
@@ -203,10 +203,11 @@ class Logger:
         self.bar = ProgressBar(limit=limit)
         self.bar.open()
 
-    def new(
-            self, message: str, scope: str, do_not_print: bool = False,
-            notify: bool = False
-        ) -> bool:
+    def new(self,
+            message: str,
+            scope: str,
+            print_to_console: bool = False,
+            notify: bool = False) -> bool:
         """
         Initiates a new log entry and prints it to the console. Optionally, if do_not_print is
         passed as True, it will only save the log and will not print anything (unless the scope is
@@ -214,10 +215,10 @@ class Logger:
 
         :param message: the log message
         :param scope: the scope of the message
-        :param do_not_print: optional; if true True, the message will not be printed to the
-                                       console, regardless of scope
-        :param notify: optional; if true True, the message will be displayed as a desktop
-                                 notification
+        :param print_to_console: optional, default True; whether the message should be printed to
+                                 the console
+        :param notify: optional, default False; whether the message should be displayed as a
+                       desktop notification
 
         :returns: a boolean success status
         """
@@ -230,8 +231,8 @@ class Logger:
             if is_bar and len(message) < len(self.bar.state):
                 message += " " * (len(self.bar.state) - len(message))
             
-            entry: LogEntry = self.__create_log_entry(is_bar, message, output, scope)
-            self.__display_log_entry(entry, scope, notify, do_not_print, is_bar)
+            entry: LogEntry = self.__create_log_entry(message, output, scope)
+            self.__display_log_entry(entry, scope, notify, print_to_console, is_bar)
 
             self.__write_logs = self.__write_logs or output
             self.__is_empty = False
