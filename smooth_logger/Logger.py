@@ -242,7 +242,7 @@ class Logger:
     def new(self,
             message: str,
             scope: str,
-            print_to_console: bool = False,
+            print_to_console: bool = True,
             notify: bool = False) -> bool:
         """
         Initiates a new log entry and prints it to the console. Optionally, if do_not_print is
