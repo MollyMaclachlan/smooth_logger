@@ -1,2 +1,2 @@
-from .logger import Logger
-from .logger import LogEntry
+from .Logger import Logger
+from .LogEntry import LogEntry
