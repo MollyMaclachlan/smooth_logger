@@ -102,7 +102,7 @@ class Logger:
                 ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S")[method == "time"]
             )
         else:
-            print("ERROR: Bad method passed to Logger.get_time().")
+            self.new("Bad method passed to Logger.get_time().", "ERROR")
             return ""
 
     def add_scope(self, name: str, value: int) -> bool:
