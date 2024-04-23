@@ -71,6 +71,4 @@ The above statement could, for example, be used to temporarily enable debug stat
 
 - Possibly replace some internal warnings with Exceptions so they can be more easily-handled by end-user programs.
 
-- Rework categories to use enums.
-
 - Add a category that saves to the log file but doesn't print to the console.

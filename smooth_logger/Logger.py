@@ -2,12 +2,13 @@ from datetime import datetime
 from os import environ, makedirs
 from os.path import expanduser, isdir
 from plyer import notification
+from plyer.facades import Notification
 from smooth_progress import ProgressBar
 from time import time
-from .LogEntry import LogEntry
+from typing_extensions import Union
 
-from plyer.facades import Notification
-from typing import Dict, List, Union
+from .enums import Categories
+from .LogEntry import LogEntry
 
 
 class Logger:
@@ -23,17 +24,17 @@ class Logger:
     def __init__(self,
                  program_name: str,
                  config_path: str = None,
-                 debug: int = 0,
-                 error: int = 2,
-                 fatal: int = 2,
-                 info: int = 1,
-                 warning: int = 2) -> None:
+                 debug: int = Categories.DISABLED,
+                 error: int = Categories.MAXIMUM,
+                 fatal: int = Categories.MAXIMUM,
+                 info: int = Categories.ENABLED,
+                 warning: int = Categories.MAXIMUM) -> None:
         self.bar: ProgressBar = ProgressBar()
         self.__is_empty: bool = True
-        self.__log: List[LogEntry] = []
+        self.__log: list[LogEntry] = []
         self.__notifier: Notification = notification
         self.__program_name: str = program_name
-        self.__scopes: Dict[str, int] = {
+        self.__scopes: dict[str, int] = {
             "DEBUG":   debug,   # information for debugging the program
             "ERROR":   error,   # errors the program can recover from
             "FATAL":   fatal,   # errors that mean the program cannot continue
@@ -120,7 +121,7 @@ class Logger:
         :param is_bar: whether the progress bar is active
         :param console: whether the message should be printed to the console
         """
-        if scope == "NOSCOPE" or (self.__scopes[scope] > 0 and print_to_console):
+        if scope == "NOSCOPE" or (self.__scopes[scope] != Categories.DISABLED and print_to_console):
             print(entry.rendered)
         if is_bar:
             print(self.bar.state, end="\r", flush=True)
@@ -198,7 +199,7 @@ class Logger:
             )
         return False
 
-    def get(self, mode: str = "all", scope: str = None) -> Union[List[LogEntry], LogEntry]:
+    def get(self, mode: str = "all", scope: str = None) -> Union[list[LogEntry], LogEntry]:
         """
         Returns item(s) in the log. The entries returned can be controlled by passing optional
         arguments.
@@ -260,7 +261,11 @@ class Logger:
         :returns: a boolean success status
         """
         if scope in self.__scopes or scope == "NOSCOPE":
-            output: bool = (self.__scopes[scope] == 2) if scope != "NOSCOPE" else False
+            output: bool = (
+                (self.__scopes[scope] == Categories.MAXIMUM)
+                if scope != "NOSCOPE" else
+                False
+            )
             is_bar: bool = (self.bar is not None) and self.bar.opened
 
             # if the progress bar is enabled, append any necessary empty characters to the message
