@@ -213,7 +213,7 @@ class Logger:
             )
         return False
 
-    def get(self, mode: str = "all", scope: str = None) -> Union[list[LogEntry], LogEntry]:
+    def get(self, mode: str = "all", scope: str = None) -> Union[list[LogEntry], LogEntry, None]:
         """
         Returns item(s) in the log. The entries returned can be controlled by passing optional
         arguments.
@@ -233,16 +233,16 @@ class Logger:
             # return all log entries matching the query
             if mode == "all":
                 data: list[LogEntry] = []
-                for i in self.__log:
-                    if scope is None or i.scope == scope:
-                        data.append(i)
+                for entry in self.__log:
+                    if scope is None or entry.scope == scope:
+                        data.append(entry)
                 if data:
                     return data
             # iterate through the log in reverse to find the most recent entry matching the query
             elif mode == "recent":
-                for i in reversed(self.__log):
-                    if scope is None or i.scope == scope:
-                        return i
+                for entry in reversed(self.__log):
+                    if scope is None or entry.scope == scope:
+                        return entry
             else:
                 self.new("Unknown mode passed to Logger.get().", "WARNING")
 
