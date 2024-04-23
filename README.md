@@ -58,6 +58,8 @@ Every log message is associated with a scope. This is an all-caps prefix to the 
 - INFO: General information for the user.
 - WARNING: Things that have no immediate impact to functionality but could cause errors later on.
 
+You can also use the value "NOSCOPE" to indicate that a message should be printed without a prefixed scope. Messages with no scope are printed to the console, not saved to the output file, and are not accompanied by a timestamp.
+
 ### Categories
 
 When initialising the Logger, you can optionally provide categories to associate with each scope:
@@ -90,7 +92,9 @@ Similarly, you can use `Logger.edit_scope()` to modify the category of an existi
 Log.edit_scope("DEBUG", Categories.ENABLED)
 ```
 
-The above statement could, for example, be used to temporarily enable debug statements if an error is detected. Be aware that only the categories defined in the Categories enum will be recognised; attempting to pass anything else as a category will prompt a warning, and the scope will not be added/edited.
+The above statement could, for example, be used to temporarily enable debug statements if an error is detected.
+
+Only the categories defined in the `Categories` enum will be recognised; attempting to pass anything else as a category will prompt a warning, and the scope will not be added/edited.
 
 Finally, you can remove any scope with the following method:
 
