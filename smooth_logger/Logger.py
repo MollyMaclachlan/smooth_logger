@@ -240,9 +240,9 @@ class Logger:
                     return data
             # iterate through the log in reverse to find the most recent entry matching the query
             elif mode == "recent":
-                for i in range(len(self.__log)-1, 0):
-                    if scope is None or self.__log[i].scope == scope:
-                        return self.__log[i]
+                for i in reversed(self.__log):
+                    if scope is None or i.scope == scope:
+                        return i
             else:
                 self.new("Unknown mode passed to Logger.get().", "WARNING")
 
