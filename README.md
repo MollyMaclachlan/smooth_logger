@@ -68,6 +68,8 @@ When initialising the Logger, you can optionally provide categories to associate
 - ENABLED (will print to console but not save to log file)
 - MAXIMUM (will print to console and save to log file)
 
+By default, the DEBUG scope is disabled, the INFO scope is enabled, and the ERROR, FATAL and WARNING scopes are all set to maximum. Scopes set to maximum are not *automatically* saved to the log file; calling `Logger.output()` will save them and then clean the in-memory log to avoid duplication.
+
 Categories are accessed like so:
 
 ```py
@@ -75,8 +77,6 @@ from smooth_logger.enums import Categories
 
 Categories.ENABLED
 ```
-
-By default, the DEBUG scope is disabled, the INFO scope is enabled, and the ERROR, FATAL and WARNING scopes are all set to maximum.
 
 ### Customising scopes
 
