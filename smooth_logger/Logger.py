@@ -166,8 +166,15 @@ class Logger:
                 "WARNING"
             )
         else:
-            self.__scopes[name] = category
-            return True
+            if category in set(item for item in Categories):
+                self.__scopes[name] = category
+                return True
+            else:
+                self.new(
+                    f"Attempt was made to add new scope with category {category}, but this is not "
+                    + "a valid category.",
+                    "WARNING"
+                )
         return False
 
     def clean(self) -> None:
@@ -189,8 +196,15 @@ class Logger:
         :returns: a boolean success status
         """
         if name in self.__scopes.keys():
-            self.__scopes[name] = category
-            return True
+            if category in set(item for item in Categories):
+                self.__scopes[name] = category
+                return True
+            else:
+                self.new(
+                    f"Attempt was made to change category of scope {name} to {category}, but this "
+                    + "is not a valid category.",
+                    "WARNING"
+                )
         else:
             self.new(
                 f"Attempt was made to edit a scope with name {name}, but no scope with this name "

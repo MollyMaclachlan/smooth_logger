@@ -81,16 +81,16 @@ By default, the DEBUG scope is disabled, the INFO scope is enabled, and the ERRO
 You can create custom scopes using the `Logger.add_scope()` method. These are currently instance-specific and not hard saved in any way. A simple usage of this is as follows:
 
 ```py
-Log.add_scope("NEWSCOPE", 1)
+Log.add_scope("NEWSCOPE", Categories.ENABLED)
 ```
 
 Similarly, you can use `Logger.edit_scope()` to modify the category of an existing scope (for the specific instance only), like so:
 
 ```py
-Log.edit_scope("DEBUG", 1)
+Log.edit_scope("DEBUG", Categories.ENABLED)
 ```
 
-The above statement could, for example, be used to temporarily enable debug statements if an error is detected.
+The above statement could, for example, be used to temporarily enable debug statements if an error is detected. Be aware that only the categories defined in the Categories enum will be recognised; attempting to pass anything else as a category will prompt a warning, and the scope will not be added/edited.
 
 Finally, you can remove any scope with the following method:
 
