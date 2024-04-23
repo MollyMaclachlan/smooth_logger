@@ -14,7 +14,7 @@ class Logger:
     """
     Class for controlling the entirety of logging. The logging works on a scope-based system where
     (almost) every message has a defined scope, and the scopes are each associated with a specific
-    value between 0 and 2 inclusive. The meanings of the values are as follows:
+    category between 0 and 2 inclusive. The meanings of the categories are as follows:
 
     0: disabled, do not print to console or save to log file
     1: enabled, print to console but do not save to log file
@@ -144,7 +144,7 @@ class Logger:
             self.new("Bad method passed to Logger.get_time().", "ERROR")
             return ""
 
-    def add_scope(self, name: str, value: int) -> bool:
+    def add_scope(self, name: str, category: int) -> bool:
         """
         Adds a new logging scope for use with log entries. Users should be careful when doing this;
         custom scopes would be best added immediately following initialisation. If a 'Logger.new()'
@@ -154,7 +154,7 @@ class Logger:
         Custom scopes are instance specific and not hard saved.
 
         :param name: the name of the new scope
-        :param value: the default value of the new scope (0-2)
+        :param category: the default category of the new scope (0-2)
 
         :return: a boolean sucess status
         """
@@ -165,7 +165,7 @@ class Logger:
                 "WARNING"
             )
         else:
-            self.__scopes[name] = value
+            self.__scopes[name] = category
             return True
         return False
 
@@ -177,22 +177,23 @@ class Logger:
         self.__is_empty = True
         self.__write_logs = False
 
-    def edit_scope(self, name: str, value: int) -> bool:
+    def edit_scope(self, name: str, category: int) -> bool:
         """
-        Edits an existing scope's value. Edited values are instance specific and not hard saved.
+        Edits an existing scope's category, if the scope exists. Edited categories are instance
+        specific and not hard saved.
 
         :param name: the name of the scope to edit
-        :param value: the new value of the scope (0-2)
+        :param category: the new category of the scope (0-2)
 
         :returns: a boolean success status
         """
         if name in self.__scopes.keys():
-            self.__scopes[name] = value
+            self.__scopes[name] = category
             return True
         else:
             self.new(
-                f"Attempt was made to edit a scope with name {name}, but no scope with "
-                + "this name exists.",
+                f"Attempt was made to edit a scope with name {name}, but no scope with this name "
+                + "exists.",
                 "WARNING"
             )
         return False
@@ -205,7 +206,7 @@ class Logger:
         If no entries match the query, nothing will be returned.
 
         :param mode: optional; 'all' for all log entries or 'recent' for only the most recent one
-        :param scope: optional; if passed, only entries matching its value will be returned
+        :param scope: optional; if passed, only entries matching its category will be returned
 
         :returns: a single log entry or list of log entries, or nothing
         """
@@ -300,3 +301,22 @@ class Logger:
                     if line.output:
                         log_file.write(line.rendered + "\n")
         self.clean()
+
+    def remove_scope(self, name: str) -> bool:
+        """
+        Removes an existing scope if it exists.
+
+        :param name: the name of the scope to remove
+
+        :returns: a boolean success status
+        """
+        if name in self.__scopes.keys():
+            del self.__scopes[name]
+            return True
+        else:
+            self.new(
+                f"Attempt was made to remove a scope with name {name}, but no scope with this "
+                + "name exists.",
+                "WARNING"
+            )
+        return False
