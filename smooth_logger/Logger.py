@@ -48,7 +48,7 @@ class Logger:
             if config_path is None else 
             f"{config_path}/logs"
         )
-        self.__create_log_folder()
+        self._create_folder(self._output_path)
 
     def __create_log_entry(self, message: str, output: bool, scope: str) -> LogEntry:
         """
@@ -63,14 +63,6 @@ class Logger:
         entry: LogEntry = LogEntry(message, output, scope, self._get_time())
         self._log.append(entry)
         return entry
-
-    def __create_log_folder(self) -> None:
-        """
-        Creates the folder that will contain the log files.
-        """
-        if not isdir(self._output_path):
-            print(f"Making path: {self._output_path}")
-            makedirs(self._output_path, exist_ok=True)
 
     def __define_output_path(self) -> str:
         """
@@ -96,9 +88,6 @@ class Logger:
                 if os == "win" else
                 f"{expanduser('~')}/.config/{self.program_name}/logs"
             )
-            if not isdir(path):
-                print(f"Making path: {path}")
-                makedirs(path, exist_ok=True)
             return path
         else:
             print(
@@ -128,6 +117,15 @@ class Logger:
             print(self.bar.state, end="\r", flush=True)
         if notify:
             self.notify(entry.message)
+
+    def _create_folder(self, path: str) -> None:
+        """
+        Creates a folder at a given path. Intended for the creation of configuration and and log
+        folders.
+        """
+        if not isdir(path):
+            print(f"Making path: {path}")
+            makedirs(path, exist_ok=True)
 
     def _get_time(self, method: str = "time") -> str:
         """
