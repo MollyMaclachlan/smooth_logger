@@ -30,19 +30,20 @@ class Logger:
                  info: int = Categories.ENABLED,
                  warning: int = Categories.MAXIMUM) -> None:
         self.bar: ProgressBar = ProgressBar()
-        self.__is_empty: bool = True
-        self.__log: list[LogEntry] = []
-        self.__notifier: Notification = notification
-        self.__program_name: str = program_name
-        self.__scopes: dict[str, int] = {
+        self.is_empty: bool = True
+        self.program_name: str = program_name
+        self._log: list[LogEntry] = []
+        self._scopes: dict[str, int] = {
             "DEBUG":   debug,   # information for debugging the program
             "ERROR":   error,   # errors the program can recover from
             "FATAL":   fatal,   # errors that mean the program cannot continue
             "INFO":    info,    # general information for the user
             "WARNING": warning  # things that could cause errors later on
         }
+        self.__notifier: Notification = notification
         self.__write_logs = False
-        self.__output_path: str = (
+
+        self._output_path: str = (
             self.__define_output_path()
             if config_path is None else 
             f"{config_path}/logs"
@@ -59,17 +60,17 @@ class Logger:
 
         :returns: the created log entry
         """
-        entry: LogEntry = LogEntry(message, output, scope, self.__get_time())
-        self.__log.append(entry)
+        entry: LogEntry = LogEntry(message, output, scope, self._get_time())
+        self._log.append(entry)
         return entry
 
     def __create_log_folder(self) -> None:
         """
         Creates the folder that will contain the log files.
         """
-        if not isdir(self.__output_path):
-            print(f"Making path: {self.__output_path}")
-            makedirs(self.__output_path, exist_ok=True)
+        if not isdir(self._output_path):
+            print(f"Making path: {self._output_path}")
+            makedirs(self._output_path, exist_ok=True)
 
     def __define_output_path(self) -> str:
         """
@@ -91,12 +92,12 @@ class Logger:
         os: str = "".join(list(platform)[:3])
         if os in ["dar", "lin", "win"]:
             path: str = (
-                environ["APPDATA"] + f"\\{self.__program_name}\logs"
+                environ["APPDATA"] + f"\\{self.program_name}\logs"
                 if os == "win" else
-                f"{expanduser('~')}/.config/{self.__program_name}/logs"
+                f"{expanduser('~')}/.config/{self.program_name}/logs"
             )
             if not isdir(path):
-                print(f"INFO: Making path: {path}")
+                print(f"Making path: {path}")
                 makedirs(path, exist_ok=True)
             return path
         else:
@@ -121,14 +122,14 @@ class Logger:
         :param is_bar: whether the progress bar is active
         :param console: whether the message should be printed to the console
         """
-        if scope == "NOSCOPE" or (self.__scopes[scope] != Categories.DISABLED and print_to_console):
+        if scope == "NOSCOPE" or (self._scopes[scope] != Categories.DISABLED and print_to_console):
             print(entry.rendered)
         if is_bar:
             print(self.bar.state, end="\r", flush=True)
         if notify:
             self.notify(entry.message)
 
-    def __get_time(self, method: str = "time") -> str:
+    def _get_time(self, method: str = "time") -> str:
         """
         Gets the current time and parses it to a human-readable format; either
         'YYYY-MM-DD HH:MM:SS' or 'YYYY-MM-DD'.
@@ -159,7 +160,7 @@ class Logger:
 
         :return: a boolean sucess status
         """
-        if name in self.__scopes.keys():
+        if name in self._scopes.keys():
             self.new(
                 f"Attempt was made to add new scope with name {name}, but scope with this name "
                 + "already exists.",
@@ -167,7 +168,7 @@ class Logger:
             )
         else:
             if category in set(item for item in Categories):
-                self.__scopes[name] = category
+                self._scopes[name] = category
                 return True
             else:
                 self.new(
@@ -181,8 +182,8 @@ class Logger:
         """
         Empties log array. Any log entries not saved to the output file will be lost.
         """
-        del self.__log[:]
-        self.__is_empty = True
+        del self._log[:]
+        self.is_empty = True
         self.__write_logs = False
 
     def edit_scope(self, name: str, category: int) -> bool:
@@ -195,9 +196,9 @@ class Logger:
 
         :returns: a boolean success status
         """
-        if name in self.__scopes.keys():
+        if name in self._scopes.keys():
             if category in set(item for item in Categories):
-                self.__scopes[name] = category
+                self._scopes[name] = category
                 return True
             else:
                 self.new(
@@ -225,22 +226,22 @@ class Logger:
 
         :returns: a single log entry or list of log entries, or nothing
         """
-        if self.__is_empty:
+        if self.is_empty:
             pass
         elif scope is None:
-            return (self.__log, self.__log[-1])[mode == "recent"]
+            return (self._log, self._log[-1])[mode == "recent"]
         else:
             # return all log entries matching the query
             if mode == "all":
                 data: list[LogEntry] = []
-                for entry in self.__log:
+                for entry in self._log:
                     if scope is None or entry.scope == scope:
                         data.append(entry)
                 if data:
                     return data
             # iterate through the log in reverse to find the most recent entry matching the query
             elif mode == "recent":
-                for entry in reversed(self.__log):
+                for entry in reversed(self._log):
                     if scope is None or entry.scope == scope:
                         return entry
             else:
@@ -274,9 +275,9 @@ class Logger:
 
         :returns: a boolean success status
         """
-        if scope in self.__scopes or scope == "NOSCOPE":
+        if scope in self._scopes or scope == "NOSCOPE":
             output: bool = (
-                (self.__scopes[scope] == Categories.MAXIMUM)
+                (self._scopes[scope] == Categories.MAXIMUM)
                 if scope != "NOSCOPE" else
                 False
             )
@@ -291,7 +292,7 @@ class Logger:
             self.__display_log_entry(entry, scope, notify, is_bar, print_to_console)
 
             self.__write_logs = self.__write_logs or output
-            self.__is_empty = False
+            self.is_empty = False
 
             return True
         else:
@@ -304,7 +305,7 @@ class Logger:
 
         :param message: the message to display
         """
-        self.__notifier.notify(title=self.__program_name, message=message)
+        self._notifier.notify(title=self.program_name, message=message)
 
     def output(self) -> None:
         """
@@ -314,9 +315,9 @@ class Logger:
         Log files are marked with the date, so each new day, a new file will be created.
         """
         if self.__write_logs:
-            with open(f"{self.__output_path}/log-{self.__get_time(method='date')}.txt",
+            with open(f"{self._output_path}/log-{self._get_time(method='date')}.txt",
                       "at+") as log_file:
-                for line in self.__log:
+                for line in self._log:
                     if line.output:
                         log_file.write(line.rendered + "\n")
         self.clean()
@@ -329,8 +330,8 @@ class Logger:
 
         :returns: a boolean success status
         """
-        if name in self.__scopes.keys():
-            del self.__scopes[name]
+        if name in self._scopes.keys():
+            del self._scopes[name]
             return True
         else:
             self.new(
