@@ -254,6 +254,23 @@ class Logger:
         self.bar = ProgressBar(limit=limit)
         self.bar.open()
 
+    def is_scope(self, scope: str, category: Categories = None) -> bool:
+        """
+        Queries a given scope to check if it exists, and optionally if it matches a given category.
+
+        If no category is given, will return true if the scope exists. If a category is given, will
+        return true if and only if the scope exists and matches the given category.
+
+        :param scope: the scope to check
+        :param category: optional; the category to check for
+        :return: whether the scope exists and optionally matches the category
+        """
+        scope_exists: bool = scope in self._scopes
+        if category is None:
+            return scope_exists
+        else:
+            return scope_exists and self._scopes[scope] == category
+
     def new(self,
             message: str,
             scope: str,
