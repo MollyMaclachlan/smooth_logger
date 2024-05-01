@@ -15,11 +15,16 @@ class Logger:
     """
     Class for controlling the entirety of logging. The logging works on a scope-based system where
     (almost) every message has a defined scope, and the scopes are each associated with a specific
-    category between 0 and 2 inclusive. The meanings of the categories are as follows:
+    category defined by the smooth_logger.enums.Categories class. The categories' meanings are as
+    follows:
 
-    0: disabled, do not print to console or save to log file
-    1: enabled, print to console but do not save to log file
-    2: maximum, print to console and save to log file
+    Categories.DISABLED: do not print to console or save to log file
+    Categories.PRINT: print to console but do not save to log file
+    Categories.SAVE:  save to log file but do not print to console
+    Categories.MAXIMUM: print to console and save to log file
+
+    Note that the old Categories.ENABLED category is deprecated and its functionality has been
+    replaced with Categories.PRINT. It will be removed in a later version.
     """
     def __init__(self,
                  program_name: str,
@@ -27,7 +32,7 @@ class Logger:
                  debug: int = Categories.DISABLED,
                  error: int = Categories.MAXIMUM,
                  fatal: int = Categories.MAXIMUM,
-                 info: int = Categories.ENABLED,
+                 info: int = Categories.PRINT,
                  warning: int = Categories.MAXIMUM) -> None:
         self.bar: ProgressBar = ProgressBar()
         self.is_empty: bool = True
@@ -110,7 +115,10 @@ class Logger:
         :param is_bar: whether the progress bar is active
         :param print_to_console: whether the message should be printed to the console
         """
-        if scope is None or (self._scopes[scope] != Categories.DISABLED and print_to_console):
+        if scope is None or (
+                self._scopes[scope] in [Categories.MAXIMUM, Categories.PRINT, Categories.ENABLED]
+                and print_to_console
+        ):
             print(entry.rendered)
         if is_bar:
             print(self.bar.state, end="\r", flush=True)
@@ -283,7 +291,7 @@ class Logger:
             output: bool = (
                 False
                 if scope is None else
-                self._scopes[scope] == Categories.MAXIMUM
+                self._scopes[scope] in [Categories.MAXIMUM, Categories.SAVE]
             )
             is_bar: bool = (self.bar is not None) and self.bar.opened
 
