@@ -90,11 +90,10 @@ class Logger:
             )
             return path
         else:
-            print(
-                f"FATAL: Could not automatically create output folder for operating system: {os}."
-                + "You will need to manually pass a pre-defined config_path."
+            raise OSError(
+                f"Could not automatically create output folder for operating system: {os}. You"
+                + " will need to pass a manually-defined config_path."
             )
-            exit()
     
     def __display_log_entry(self,
                             entry: LogEntry,
