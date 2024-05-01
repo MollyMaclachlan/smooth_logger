@@ -109,9 +109,9 @@ class Logger:
         :param scope: the scope of the entry
         :param notify: whether to show a desktop notification for the entry
         :param is_bar: whether the progress bar is active
-        :param console: whether the message should be printed to the console
+        :param print_to_console: whether the message should be printed to the console
         """
-        if scope == "NOSCOPE" or (self._scopes[scope] != Categories.DISABLED and print_to_console):
+        if scope is None or (self._scopes[scope] != Categories.DISABLED and print_to_console):
             print(entry.rendered)
         if is_bar:
             print(self.bar.state, end="\r", flush=True)
@@ -279,7 +279,7 @@ class Logger:
         """
         Initiates a new log entry and prints it to the console. Optionally, if do_not_print is
         passed as True, it will only save the log and will not print anything (unless the scope is
-        'NOSCOPE'; these messages are always printed).
+        None; these messages are always printed).
 
         :param message: the log message
         :param scope: the scope of the message
@@ -290,11 +290,11 @@ class Logger:
 
         :returns: a boolean success status
         """
-        if scope in self._scopes or scope == "NOSCOPE":
+        if scope in self._scopes or scope is None:
             output: bool = (
-                (self._scopes[scope] == Categories.MAXIMUM)
-                if scope != "NOSCOPE" else
                 False
+                if scope is None else
+                self._scopes[scope] == Categories.MAXIMUM
             )
             is_bar: bool = (self.bar is not None) and self.bar.opened
 
