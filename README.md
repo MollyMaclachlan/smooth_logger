@@ -4,11 +4,15 @@ A simple logger made primarily for my own personal use. Was made out of a combin
 
 ## Installation
 
-smooth_logger can be installed through pip. Either download the latest release from Codeberg/GitHub, or do `pip install smooth_logger` to install from PyPi. For the latest commits, check the `dev` branches on the repositories.
+smooth_logger can be installed through pip. Either download the latest release from GitHub, or do `pip install smooth_logger` to install from PyPi. For the latest commits, check the `dev` branch on the repository.
 
 smooth_logger is currently devloped using Python 3.11, but should work with Python 3.5 and up. A minimum of 3.5 is required due to the project's use of type hinting, which was introduced in that version.
 
-smooth_logger supports Linux, macOS and Windows.
+smooth_logger supports Linux, macOS and Windows and will be able to automatically create a folder for storing log files on these operating systems. Other operating systems are not officially supported, but you may still be able to use them by providing a custom config path. See the Initialisation section, below, for more.
+
+### Requirements
+
+- smooth_logger uses the `plyer` library to send desktop notifications.
 
 ## Usage
 
@@ -20,8 +24,7 @@ The `Logger` model provides a number of methods for your use:
 - `Logger.clean()` erases all log entries currently in memory.
 - `Logger.edit_scope()` modifies the category of an existing scope.
 - `Logger.get()` allows you to retrieve either the most recent log entry or all log entries, optionally filtered by scope.
-- `Logger.get_time()` returns the full date & time, or optionally just the date, in ISO-8601 formatting.
-- `Logger.init_bar()` initialises the `ProgressBar` model imported from the `smooth_progress` dependency.
+- `Logger.is_scope()` can be queried with a scope name to check if the scope exists, and optionally with a category to check if the scope is set to it.
 - `Logger.notify()` sends a desktop notification using the `plyer` dependency.
 - `Logger.new()` creates and, depending on scope, prints a new log entry.
 - `Logger.output()` saves all log entries of appropriate scope to the log file and cleans the log array for the next group of log entries. A new log file is created for each new day. This method only attempts to create or update the log file if there are entries of an appropriate scope to be written to it; if there are none, it just executes `Logger.clean()`.
@@ -58,17 +61,18 @@ Every log message is associated with a scope. This is an all-caps prefix to the 
 - INFO: General information for the user.
 - WARNING: Things that have no immediate impact to functionality but could cause errors later on.
 
-You can also use the value "NOSCOPE" to indicate that a message should be printed without a prefixed scope. Messages with no scope are printed to the console, not saved to the output file, and are not accompanied by a timestamp.
+You can also forgo passing a scope or pass a None value to indicate that a message should be printed without a prefixed scope. Messages with no scope are printed to the console, not saved to the output file, and are not accompanied by a timestamp.
 
 ### Categories
 
 When initialising the Logger, you can optionally provide categories to associate with each scope:
 
 - DISABLED (will not print to console or save to log file)
-- ENABLED (will print to console but not save to log file)
-- MAXIMUM (will print to console and save to log file)
+- PRINT    (will print to console but not save to log file)
+- SAVE     (will to log file but not save print to console)
+- MAXIMUM  (will print to console and save to log file)
 
-By default, the DEBUG scope is disabled, the INFO scope is enabled, and the ERROR, FATAL and WARNING scopes are all set to maximum. Scopes set to maximum are not *automatically* saved to the log file; calling `Logger.output()` will save them and then clean the in-memory log to avoid duplication.
+By default, the DEBUG scope is disabled, the INFO scope is set to print, and the ERROR, FATAL and WARNING scopes are all set to maximum. Scopes set to save or maximum are not *automatically* saved to the log file; calling `Logger.output()` will save them and then clean the in-memory log to avoid duplication.
 
 Categories are accessed like so:
 
@@ -104,10 +108,6 @@ Log.remove_scope("DEBUG")
 
 It is recommended to be careful with this method. Removing scopes, like adding or editing them, is ephemeral and won't be hard-saved anywhere, but removing a scope during run-time will produce warnings if you attempt to use that scope anywhere in your program.
 
-## Roadmap
+## Contributing
 
-- Rework `Logger.get()` to allow passing of a specific number of log values to be fetched. If these values exceed the number in the log, all matching log values should be returned, and a warning should be issued (but not returned).
-
-- Possibly replace some internal warnings with Exceptions so they can be more easily-handled by end-user programs.
-
-- Add a category that saves to the log file but doesn't print to the console.
+I'm always happy to accept feature requests, bug reports, and any pull requests to improve the project. If you want to contribute, please explain clearly what your request or issue is so that I can provide solutions as swiftly as possible.
