@@ -3,7 +3,6 @@ from os import environ, makedirs
 from os.path import expanduser, isdir
 from plyer import notification
 from plyer.facades import Notification
-from smooth_progress import ProgressBar
 from time import time
 from typing_extensions import Union
 
@@ -34,7 +33,6 @@ class Logger:
                  fatal: int = Categories.MAXIMUM,
                  info: int = Categories.PRINT,
                  warning: int = Categories.MAXIMUM) -> None:
-        self.bar: ProgressBar = ProgressBar()
         self.is_empty: bool = True
         self.program_name: str = program_name
         self._log: list[LogEntry] = []
@@ -104,7 +102,6 @@ class Logger:
                             entry: LogEntry,
                             scope: str,
                             notify: bool,
-                            is_bar: bool,
                             print_to_console: bool = True) -> None:
         """
         Displays a given log entry as appropriate using further given settings.
@@ -112,7 +109,6 @@ class Logger:
         :param entry: the entry to display
         :param scope: the scope of the entry
         :param notify: whether to show a desktop notification for the entry
-        :param is_bar: whether the progress bar is active
         :param print_to_console: whether the message should be printed to the console
         """
         if scope is None or (
@@ -120,8 +116,6 @@ class Logger:
                 and print_to_console
         ):
             print(entry.rendered)
-        if is_bar:
-            print(self.bar.state, end="\r", flush=True)
         if notify:
             self.notify(entry.message)
 
@@ -242,15 +236,6 @@ class Logger:
             if data:
                 return data
 
-    def init_bar(self, limit: int) -> None:
-        """
-        Initiate and open the progress bar.
-
-        :param limit: the number of increments it should take to fill the bar
-        """
-        self.bar = ProgressBar(limit=limit)
-        self.bar.open()
-
     def is_scope(self, scope: str, category: Categories = None) -> bool:
         """
         Queries a given scope to check if it exists, and optionally if it matches a given category.
@@ -293,12 +278,6 @@ class Logger:
                 if scope is None else
                 self._scopes[scope] in [Categories.MAXIMUM, Categories.SAVE]
             )
-            is_bar: bool = (self.bar is not None) and self.bar.opened
-
-            # if the progress bar is enabled, append any necessary empty characters to the message
-            # to completely overwrite it upon output
-            if is_bar and len(message) < len(self.bar.state):
-                message += " " * (len(self.bar.state) - len(message))
             
             entry: LogEntry = self.__create_log_entry(message, output, scope)
             self.__display_log_entry(entry, scope, notify, is_bar, print_to_console)

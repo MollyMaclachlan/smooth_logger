@@ -19,8 +19,7 @@ setup(
     url="https://github.com/MurdoMaclachlan/smooth_logger",
     packages=find_packages(),
     install_requires=[
-        "plyer",
-        "smooth_progress"
+        "plyer"
     ],
     classifiers=[
         "Programming Language :: Python :: 3.5",
