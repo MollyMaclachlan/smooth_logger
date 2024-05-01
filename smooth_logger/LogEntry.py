@@ -8,7 +8,7 @@ class LogEntry:
         self.scope = scope
         self.timestamp = timestamp
         self.rendered = (
-            f"[{timestamp}] {scope}: {message}"
-            if scope != "NOSCOPE" else
             f"{message}"
+            if scope is None else
+            f"[{timestamp}] {scope}: {message}"
         )
