@@ -126,22 +126,18 @@ class Logger:
             print(f"Making path: {path}")
             makedirs(path, exist_ok=True)
 
-    def _get_time(self, method: str = "time") -> str:
+    def _get_time(self, date_only: bool = False) -> str:
         """
         Gets the current time and parses it to a human-readable format; either
         'YYYY-MM-DD HH:MM:SS' or 'YYYY-MM-DD'.
 
-        :param method: the format of the timestamp; either 'time' or 'date'.
-
-        :returns: a single date string
+        :param date_only: optional; whether the timestamp should include only the date or the time
+                          as well; defaults to False
+        :returns: a single datetime string
         """
-        if method in ["time", "date"]:
-            return datetime.fromtimestamp(time()).strftime(
-                ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S")[method == "time"]
-            )
-        else:
-            self.new("Bad method passed to Logger.get_time().", "ERROR")
-            return ""
+        return datetime.fromtimestamp(time()).strftime(
+            ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d")[date_only]
+        )
 
     def add_scope(self, name: str, category: int) -> bool:
         """
@@ -329,7 +325,7 @@ class Logger:
         Log files are marked with the date, so each new day, a new file will be created.
         """
         if self.__write_logs:
-            with open(f"{self._output_path}/log-{self._get_time(method='date')}.txt",
+            with open(f"{self._output_path}/log-{self._get_time(date_only=True)}.txt",
                       "at+") as log_file:
                 for line in self._log:
                     if line.output:
