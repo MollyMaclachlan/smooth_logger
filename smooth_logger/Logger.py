@@ -207,38 +207,32 @@ class Logger:
             )
         return False
 
-    def get(self, mode: str = "all", scope: str = None) -> Union[list[LogEntry], LogEntry, None]:
+    def get(self,
+            number: int = 1,
+            recent: bool = True,
+            scope: str = None) -> Union[list[LogEntry], LogEntry, None]:
         """
         Returns item(s) in the log. The entries returned can be controlled by passing optional
         arguments.
 
         If no entries match the query, nothing will be returned.
 
-        :param mode: optional; 'all' for all log entries or 'recent' for only the most recent one
-        :param scope: optional; if passed, only entries matching its category will be returned
-
+        :param number: the number of entries to be returned; defaults to 1
+        :param recent: whether to return starting at the most recent entry (True) or the earliest
+                       (False); defaults to True
+        :param scope: if passed, only entries matching its category will be returned
         :returns: a single log entry or list of log entries, or nothing
         """
         if self.is_empty:
-            pass
-        elif scope is None:
-            return (self._log, self._log[-1])[mode == "recent"]
+            return None
         else:
-            # return all log entries matching the query
-            if mode == "all":
-                data: list[LogEntry] = []
-                for entry in self._log:
-                    if scope is None or entry.scope == scope:
-                        data.append(entry)
-                if data:
-                    return data
-            # iterate through the log in reverse to find the most recent entry matching the query
-            elif mode == "recent":
-                for entry in reversed(self._log):
-                    if scope is None or entry.scope == scope:
-                        return entry
-            else:
-                self.new("Unknown mode passed to Logger.get().", "WARNING")
+            data: list[LogEntry] = []
+            entries: list[LogEntry] = (self._log, reversed(self._log))[recent]
+            for entry in entries:
+                if len(data) < number and (scope is None or entry.scope == scope):
+                    data.append(entry)
+            if data:
+                return data
 
     def init_bar(self, limit: int) -> None:
         """
