@@ -7,7 +7,7 @@ def readme():
 
 setup(
     name="smooth_logger",
-    version="1.0.1",
+    version="1.0.2",
     author="Murdo Maclachlan",
     author_email="murdomaclachlan@duck.com",
     description=(
