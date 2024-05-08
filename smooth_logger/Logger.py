@@ -4,7 +4,7 @@ from os.path import expanduser, isdir
 from plyer import notification
 from plyer.facades import Notification
 from time import time
-from typing_extensions import Union
+from typing import Union
 
 from .enums import Categories
 from .LogEntry import LogEntry
