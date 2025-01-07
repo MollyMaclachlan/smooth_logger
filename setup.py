@@ -8,7 +8,7 @@ def readme():
 setup(
     name="smooth_logger",
     version="1.0.2",
-    author="Murdo Maclachlan",
+    author="Molly Maclachlan",
     author_email="murdomaclachlan@duck.com",
     description=(
         "A simple logger made primarily for my own personal use. Made from a combination of"
@@ -16,7 +16,7 @@ setup(
     ),
     long_description=readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/MurdoMaclachlan/smooth_logger",
+    url="https://github.com/MollyMaclachlan/smooth_logger",
     packages=find_packages(),
     install_requires=[
         "plyer"
