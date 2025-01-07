@@ -87,7 +87,7 @@ class Logger:
         os: str = "".join(list(platform)[:3])
         if os in ["dar", "lin", "win"]:
             path: str = (
-                environ["APPDATA"] + f"\\{self.program_name}\logs"
+                environ["APPDATA"] + f"\\{self.program_name}\\logs"
                 if os == "win" else
                 f"{expanduser('~')}/.config/{self.program_name}/logs"
             )
